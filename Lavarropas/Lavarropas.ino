@@ -67,11 +67,12 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(INTERRUPTOR1), cambiarProcedimiento, LOW);
   Serial.println("Preparado");
 }
+
 void loop()
 {
-  if(reposo == true){ digitalWrite(LED1, HIGH); }
+  if(reposo == true){ encenderLedDeReposo(); }
   if(reposo == false){
-    digitalWrite(LED1, LOW);
+    apagarLedDeReposo();
     if(modo == 0 || modo == 1){ lavarConJabon(); }
     if(modo == 1){ lavarConSuavizante(); }
     if(modo == 0 || modo == 1){ enjuagar(); }
@@ -83,6 +84,14 @@ void loop()
   if(digitalRead(INTERRUPTOR1) == LOW){ cambiarProcedimiento(); }
   if(digitalRead(INTERRUPTOR2) == LOW){ cambiarCarga(); }
   if(digitalRead(INTERRUPTOR3) == LOW){ cambiarModo(); }
+}
+
+//Métodos de funcionamiento
+void encenderLedDeReposo(){
+digitalWrite(LED1, HIGH);
+}
+void apagarLedDeReposo(){
+    digitalWrite(LED1, LOW);
 }
 void cambiarProcedimiento(){
   delay(delayBoton);

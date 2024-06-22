@@ -1,143 +1,143 @@
-/*Pines de los Relé*/
-const int RELE1 = 4; //Electro válvula de jabón
-const int RELE2 = 5; //Electro válvula de suavizante
-const int RELE3 = 6; //Bomba de vaciado
-const int RELE4 = 7; //Vacío
-const int RELE5 = 8; //Motor
-const int RELE6 = 9; //Motor
-const int RELE7 = 10; //Vacío
-const int RELE8 = 11; //Vacío
-/*Pines de los LEDs*/
-const int LED1 = 14; //A0 - Esperando configuracion
-const int LED2 = 15; //A1 - Media carga
-const int LED3 = 16; //A2 - Lavado con jabon y enjuague
-const int LED4 = 17; //A3 - Lavado con jabón, lavado con suavizante y enjuague
-const int LED5 = 18; //A4 - Centrifugado
-/*Pines de los interruptores*/
-const int INTERRUPTOR1 = 2; // Arranca/Para el procedimiento
-const int INTERRUPTOR2 = 12; //Cambiar modo de carga
-const int INTERRUPTOR3 = 13; //Cambiar procedimiento
-/*Variables*/
-int tiempoCargarAguaCargaCompleta = 5000;
-int tiempoCargarAguaCargaMedia = tiempoCargarAguaCargaCompleta/2;
+/* Relay pins */
+const int RELAY1 = 4; //Soap electro valve
+const int RELAY2 = 5; //Softener electro valve
+const int RELAY3 = 6; //Draining pump
+const int RELAY4 = 7; //Empty
+const int RELAY5 = 8; //Motor
+const int RELAY6 = 9; //Motor
+const int RELAY7 = 10; //Empty
+const int RELAY8 = 11; //Empty
+/* LED pins*/
+const int LED1 = 14; //A0 - Awaiting configuration
+const int LED2 = 15; //A1 - Half Load
+const int LED3 = 16; //A2 - Wash with soap and rinse
+const int LED4 = 17; //A3 - Wash with soap, wash with fabric softener and rinse
+const int LED5 = 18; //A4 - Centrifugation
+/* Switch pins */
+const int SWITCH1 = 2; // Begin/Stop procedures
+const int SWITCH2 = 12; //Change load mode
+const int SWITCH3 = 13; //Change procedure
+/* Variables */
+int timeWaterLoadFullLoad = 5000;
+int timeWaterLoadHalfLoad = timeWaterLoadFullLoad/2;
 
-int tiempoLavado = 2500;
+int washTime = 2500;
 
-int tiempoVaciadoCargaCompleta = 2000;
-int tiempoVaciadoCargaMedia = tiempoVaciadoCargaCompleta/2;
+int timeDrainingFullLoad = 2000;
+int timeDrainingHalfLoad = timeDrainingFullLoad/2;
 
-int tiempoEnjuagueCargaCompleta = 4000;
-int tiempoEnjuagueMediaCarga = tiempoEnjuagueCargaCompleta/2;
+int timeRinseFullLoad = 4000;
+int timeRinseHalfLoad = timeRinseFullLoad/2;
 
-int tiempoCentrifugado = 3000;
-/*Lógica*/
-int delayBoton = 250;
-bool mediaCarga = false; //Por defecto lleno, cambiar a true si se desea
-volatile int modo = 0;
-volatile bool reposo = true;
-/*Configuración de la placa*/
+int timeCentrifugation = 3000;
+/* Logic */
+int buttonDelay = 250;
+bool halfLoad = false; //Full load by default
+volatile int mode = 0;
+volatile bool rest = true;
+/* Board configuration */
 void setup()
 {   
   Serial.begin(9600);
-  pinMode(RELE1, OUTPUT);
-  pinMode(RELE2, OUTPUT);
-  pinMode(RELE3, OUTPUT);
-  pinMode(RELE4, OUTPUT);
-  pinMode(RELE5, OUTPUT);
-  pinMode(RELE6, OUTPUT);
-  pinMode(RELE7, OUTPUT);
-  pinMode(RELE8, OUTPUT);
+  pinMode(RELAY1, OUTPUT);
+  pinMode(RELAY2, OUTPUT);
+  pinMode(RELAY3, OUTPUT);
+  pinMode(RELAY4, OUTPUT);
+  pinMode(RELAY5, OUTPUT);
+  pinMode(RELAY6, OUTPUT);
+  pinMode(RELAY7, OUTPUT);
+  pinMode(RELAY8, OUTPUT);
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
   pinMode(LED3, OUTPUT);
   pinMode(LED4, OUTPUT);
   pinMode(LED5, OUTPUT);
-  pinMode(INTERRUPTOR1, INPUT_PULLUP);
-  pinMode(INTERRUPTOR2, INPUT_PULLUP);
-  pinMode(INTERRUPTOR3, INPUT_PULLUP);
-  digitalWrite(RELE1, HIGH);
-  digitalWrite(RELE2, HIGH);
-  digitalWrite(RELE3, HIGH);
-  digitalWrite(RELE4, HIGH);
-  digitalWrite(RELE5, HIGH);
-  digitalWrite(RELE6, HIGH);
-  digitalWrite(RELE7, HIGH);
-  digitalWrite(RELE8, HIGH);
+  pinMode(SWITCH1, INPUT_PULLUP);
+  pinMode(SWITCH2, INPUT_PULLUP);
+  pinMode(SWITCH3, INPUT_PULLUP);
+  digitalWrite(RELAY1, HIGH);
+  digitalWrite(RELAY2, HIGH);
+  digitalWrite(RELAY3, HIGH);
+  digitalWrite(RELAY4, HIGH);
+  digitalWrite(RELAY5, HIGH);
+  digitalWrite(RELAY6, HIGH);
+  digitalWrite(RELAY7, HIGH);
+  digitalWrite(RELAY8, HIGH);
   digitalWrite(LED3, HIGH);
-  attachInterrupt(digitalPinToInterrupt(INTERRUPTOR1), cambiarProcedimiento, LOW);
-  Serial.println("Preparado");
+  attachInterrupt(digitalPinToInterrupt(SWITCH1), changeProcedure, LOW);
+  Serial.println("Ready");
 }
 
 void loop()
 {
-  if(reposo == true){ encenderLedDeReposo(); }
-  if(reposo == false){
+  if(rest == true){ turnOnStandbyLed(); }
+  if(rest == false){
     apagarLedDeReposo();
-    if(modo == 0 || modo == 1){ lavarConJabon(); }
-    if(modo == 1){ lavarConSuavizante(); }
-    if(modo == 0 || modo == 1){ enjuagar(); }
-    if(modo == 2){ centrifugar(); }
-    if(modo == 3){ enjuagar(); }
-    reposo = true;
-    Serial.println("Listo!");
+    if(mode == 0 || mode == 1){ washWithSoap(); }
+    if(mode == 1){ washWithSoftener(); }
+    if(mode == 0 || mode == 1){ rinse(); }
+    if(mode == 2){ centrifuge(); }
+    if(mode == 3){ rinse(); }
+    rest = true;
+    Serial.println("Done!");
   }
-  if(digitalRead(INTERRUPTOR1) == LOW){ cambiarProcedimiento(); }
-  if(digitalRead(INTERRUPTOR2) == LOW){ cambiarCarga(); }
-  if(digitalRead(INTERRUPTOR3) == LOW){ cambiarModo(); }
+  if(digitalRead(SWITCH1) == LOW){ changeProcedure(); }
+  if(digitalRead(SWITCH2) == LOW){ changeLoad(); }
+  if(digitalRead(SWITCH3) == LOW){ changeMode(); }
 }
 
-//Métodos de funcionamiento
-void encenderLedDeReposo(){
+//Operating methods
+void turnOnStandbyLed(){
 digitalWrite(LED1, HIGH);
 }
 void apagarLedDeReposo(){
     digitalWrite(LED1, LOW);
 }
-void cambiarProcedimiento(){
-  delay(delayBoton);
-  reposo = !reposo;
+void changeProcedure(){
+  delay(buttonDelay);
+  rest = !rest;
 }
-void cambiarCarga(){
-  delay(delayBoton);
-  if(mediaCarga == true){
-    mediaCarga = false;
+void changeLoad(){
+  delay(buttonDelay);
+  if(halfLoad == true){
+    halfLoad = false;
     digitalWrite(LED2, LOW);
-    Serial.println("Media carga desactivada");
+    Serial.println("Half load OFF");
   }
-  else if(mediaCarga == false){
-    mediaCarga = true;
+  else if(halfLoad == false){
+    halfLoad = true;
     digitalWrite(LED2, HIGH);
-    Serial.println("Media carga activada");
+    Serial.println("Half load ON");
   }
 }
-void cambiarModo(){
-  delay(delayBoton);
-  modo++;
-  if(modo >= 4) { modo = 0; }
-  switch(modo){
+void changeMode(){
+  delay(buttonDelay);
+  mode++;
+  if(mode >= 4) { mode = 0; }
+  switch(mode){
     case 0:
-      Serial.println("Programa : Lavado con jabón y enjuague");
+      Serial.println("Program : Wash with soap and rinse");
       digitalWrite(LED3, HIGH);
       digitalWrite(LED4, LOW);
       digitalWrite(LED5, LOW);
       digitalWrite(LED6, HIGH);
       break;
     case 1:
-      Serial.println("Programa : Lavado con jabón, lavado con suavizante y enjuague");
+      Serial.println("Program : Wash with soap, wash with softener and rinse");
       digitalWrite(LED3, HIGH);
       digitalWrite(LED4, HIGH);
       digitalWrite(LED5, LOW);
       digitalWrite(LED6, HIGH);
       break;
     case 2:
-      Serial.println("Programa : Centrifugado");
+      Serial.println("Program : Centrifuge");
       digitalWrite(LED3, LOW);
       digitalWrite(LED4, LOW);
       digitalWrite(LED5, HIGH);
       digitalWrite(LED6, LOW);
       break;
     case 3:
-      Serial.println("Programa : Enjuagar");
+      Serial.println("Program : Rinse");
       digitalWrite(LED3, LOW);
       digitalWrite(LED4, LOW);
       digitalWrite(LED5, LOW);
@@ -145,63 +145,63 @@ void cambiarModo(){
       
   }
 }
-/*Procedimientos*/
-void cargarAgua(int valvula){
-  Serial.println("Cargando agua");
-  if(valvula == 1){ digitalWrite(RELE1, LOW); }
-  if(valvula == 2){ digitalWrite(RELE2, LOW); }
-  if(mediaCarga == true){ delay(tiempoCargarAguaCargaMedia); }
-  if(mediaCarga == false){ delay(tiempoCargarAguaCargaCompleta); }
-  if(valvula == 1){ digitalWrite(RELE1, HIGH); }
-  if(valvula == 2){ digitalWrite(RELE2, HIGH); }
-  Serial.println("Carga de agua completada");
+/* Procedures */
+void loadWater(int valve){
+  Serial.println("Loading water");
+  if(valve == 1){ digitalWrite(RELAY1, LOW); }
+  if(valve == 2){ digitalWrite(RELAY2, LOW); }
+  if(halfLoad == true){ delay(timeWaterLoadHalfLoad); }
+  if(halfLoad == false){ delay(timeWaterLoadFullLoad); }
+  if(valve == 1){ digitalWrite(RELAY1, HIGH); }
+  if(valve == 2){ digitalWrite(RELAY2, HIGH); }
+  Serial.println("Water load completed");
 }
-void vaciar(){
-  Serial.println("Vaciando");
-  digitalWrite(RELE3, LOW);
-  if(mediaCarga == true){ delay(tiempoVaciadoCargaMedia); }
-  if(mediaCarga == false){ delay(tiempoVaciadoCargaCompleta); }
-  digitalWrite(RELE3, HIGH);
-  Serial.println("Vaciado completado");
+void drain(){
+  Serial.println("Draining");
+  digitalWrite(RELAY3, LOW);
+  if(halfLoad == true){ delay(timeDrainingHalfLoad); }
+  if(halfLoad == false){ delay(timeDrainingFullLoad); }
+  digitalWrite(RELAY3, HIGH);
+  Serial.println("Draining completed");
 }
-void lavar(){
-  digitalWrite(RELE5, LOW);
-  delay(tiempoLavado);
-  digitalWrite(RELE5, HIGH);
+void wash(){
+  digitalWrite(RELAY5, LOW);
+  delay(washTime);
+  digitalWrite(RELAY5, HIGH);
 }
-void lavarConJabon(){
-  cargarAgua(1);
-  Serial.println("Iniciando lavado con jabón");
-  lavar();
-  Serial.println("Lavado con jabón completado");
-  vaciar();
+void washWithSoap(){
+  loadWater(1);
+  Serial.println("Starting soap wash");
+  wash();
+  Serial.println("Soap wash completed");
+  drain();
 }
-void lavarConSuavizante(){
-  cargarAgua(2);
-  Serial.println("Iniciando lavado con suavizante");
-  lavar();
-  Serial.println("Lavado con suavizante completado");
-  vaciar();
+void washWithSoftener(){
+  loadWater(2);
+  Serial.println("Starting softener wash");
+  wash();
+  Serial.println("Softener wash completed");
+  drain();
 }
-void enjuagar(){
-  Serial.println("Enjuagando");
-  digitalWrite(RELE1, LOW);
-  digitalWrite(RELE3, LOW);
-  digitalWrite(RELE5, LOW);
-  if(mediaCarga == true){ delay(tiempoEnjuagueMediaCarga); }
-  if(mediaCarga == false){ delay(tiempoEnjuagueCargaCompleta); }
-  digitalWrite(RELE1, HIGH);
-  digitalWrite(RELE3, HIGH);
-  digitalWrite(RELE5, HIGH);
-  Serial.println("Enjuague completado");
+void rinse(){
+  Serial.println("Rinsing");
+  digitalWrite(RELAY1, LOW);
+  digitalWrite(RELAY3, LOW);
+  digitalWrite(RELAY5, LOW);
+  if(halfLoad == true){ delay(timeRinseHalfLoad); }
+  if(halfLoad == false){ delay(timeRinseFullLoad); }
+  digitalWrite(RELAY1, HIGH);
+  digitalWrite(RELAY3, HIGH);
+  digitalWrite(RELAY5, HIGH);
+  Serial.println("Rinsing completed");
 }
-void centrifugar(){
-  Serial.println("Centrifugando");
-  while(reposo == false){
-    digitalWrite(RELE3, LOW);
-    digitalWrite(RELE5, LOW);
+void centrifuge(){
+  Serial.println("Centrifuging");
+  while(rest == false){
+    digitalWrite(RELAY3, LOW);
+    digitalWrite(RELAY5, LOW);
   }
-  Serial.println("Deteniendo centrifugado");
-  digitalWrite(RELE3, HIGH);
-  digitalWrite(RELE5, HIGH);
+  Serial.println("Stopping centrifugation");
+  digitalWrite(RELAY3, HIGH);
+  digitalWrite(RELAY5, HIGH);
 }

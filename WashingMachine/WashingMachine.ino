@@ -137,12 +137,20 @@ void changeMode(){
 /* Procedures */
 void loadWater(int valve){
   Serial.println("Loading water");
-  if(valve == 1){ digitalWrite(RELAY7, LOW); }
-  if(valve == 2){ digitalWrite(RELAY8, LOW); }
+  if(valve == 1){ digitalWrite(RELAY1, LOW); }
+  if(valve == 2){ digitalWrite(RELAY2, LOW); }
+  if(valve == 3) {
+    digitalWrite(RELAY1, LOW);
+    digitalWrite(RELAY2, LOW);
+  }
   if(halfLoad == true){ delay(timeWaterLoadHalfLoad); }
   if(halfLoad == false){ delay(timeWaterLoadFullLoad); }
-  if(valve == 1){ digitalWrite(RELAY7, HIGH); }
-  if(valve == 2){ digitalWrite(RELAY8, HIGH); }
+  if(valve == 1){ digitalWrite(RELAY1, HIGH); }
+  if(valve == 2){ digitalWrite(RELAY2, HIGH); }
+  if(valve == 3) {
+    digitalWrite(RELAY1, HIGH);
+    digitalWrite(RELAY2, HIGH);
+  }
   Serial.println("Water load completed");
 }
 void drain(){

@@ -8,7 +8,7 @@ const int RELAY6 = 9; //Motor
 const int RELAY7 = 10; //Empty
 const int RELAY8 = 11; //Empty
 /* LED pins*/
-const int ED1 = 14; //A0 - Awaiting configuration
+const int LED1 = 14; //A0 - Awaiting configuration
 const int LED2 = 15; //A1 - Half Load
 const int LED3 = 16; //A2 - Wash with soap and rinse
 const int LED4 = 17; //A3 - Wash with soap, wash with fabric softener and rinse
@@ -72,7 +72,7 @@ void loop()
 {
   if(rest == true){ turnOnStandbyLed(); }
   if(rest == false){
-    apagarLedDeReposo();
+    turnOffStandbyLed();
     if(mode == 0 || mode == 1){ washWithSoap(); }
     if(mode == 1){ washWithSoftener(); }
     if(mode == 0 || mode == 1){ rinse(); }
@@ -89,7 +89,7 @@ void loop()
 void turnOnStandbyLed(){
 digitalWrite(LED1, HIGH);
 }
-void apagarLedDeReposo(){
+void turnOffStandbyLed(){
     digitalWrite(LED1, LOW);
 }
 void changeProcedure(){
@@ -132,18 +132,17 @@ void changeMode(){
       digitalWrite(LED4, LOW);
       digitalWrite(LED5, HIGH);
       break;
-      
   }
 }
 /* Procedures */
 void loadWater(int valve){
   Serial.println("Loading water");
-  if(valve == 1){ digitalWrite(RELAY1, LOW); }
-  if(valve == 2){ digitalWrite(RELAY2, LOW); }
+  if(valve == 1){ digitalWrite(RELAY7, LOW); }
+  if(valve == 2){ digitalWrite(RELAY8, LOW); }
   if(halfLoad == true){ delay(timeWaterLoadHalfLoad); }
   if(halfLoad == false){ delay(timeWaterLoadFullLoad); }
-  if(valve == 1){ digitalWrite(RELAY1, HIGH); }
-  if(valve == 2){ digitalWrite(RELAY2, HIGH); }
+  if(valve == 1){ digitalWrite(RELAY7, HIGH); }
+  if(valve == 2){ digitalWrite(RELAY8, HIGH); }
   Serial.println("Water load completed");
 }
 void drain(){
@@ -175,12 +174,12 @@ void washWithSoftener(){
 }
 void rinse(){
   Serial.println("Rinsing");
-  digitalWrite(RELAY1, LOW);
+  digitalWrite(RELAY7, LOW);
   digitalWrite(RELAY3, LOW);
   digitalWrite(RELAY5, LOW);
   if(halfLoad == true){ delay(timeRinseHalfLoad); }
   if(halfLoad == false){ delay(timeRinseFullLoad); }
-  digitalWrite(RELAY1, HIGH);
+  digitalWrite(RELAY7, HIGH);
   digitalWrite(RELAY3, HIGH);
   digitalWrite(RELAY5, HIGH);
   Serial.println("Rinsing completed");

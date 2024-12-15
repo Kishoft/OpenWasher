@@ -8,7 +8,7 @@ const int RELAY6 = 9; //Motor
 const int RELAY7 = 10; //Empty
 const int RELAY8 = 11; //Empty
 /* LED pins*/
-const int LED1 = 14; //A0 - Awaiting configuration
+const int ED1 = 14; //A0 - Awaiting configuration
 const int LED2 = 15; //A1 - Half Load
 const int LED3 = 16; //A2 - Wash with soap and rinse
 const int LED4 = 17; //A3 - Wash with soap, wash with fabric softener and rinse
@@ -77,7 +77,6 @@ void loop()
     if(mode == 1){ washWithSoftener(); }
     if(mode == 0 || mode == 1){ rinse(); }
     if(mode == 2){ centrifuge(); }
-    if(mode == 3){ rinse(); }
     rest = true;
     Serial.println("Done!");
   }
@@ -120,28 +119,19 @@ void changeMode(){
       digitalWrite(LED3, HIGH);
       digitalWrite(LED4, LOW);
       digitalWrite(LED5, LOW);
-      digitalWrite(LED6, HIGH);
       break;
     case 1:
       Serial.println("Program : Wash with soap, wash with softener and rinse");
       digitalWrite(LED3, HIGH);
       digitalWrite(LED4, HIGH);
       digitalWrite(LED5, LOW);
-      digitalWrite(LED6, HIGH);
       break;
     case 2:
       Serial.println("Program : Centrifuge");
       digitalWrite(LED3, LOW);
       digitalWrite(LED4, LOW);
       digitalWrite(LED5, HIGH);
-      digitalWrite(LED6, LOW);
       break;
-    case 3:
-      Serial.println("Program : Rinse");
-      digitalWrite(LED3, LOW);
-      digitalWrite(LED4, LOW);
-      digitalWrite(LED5, LOW);
-      digitalWrite(LED6, HIGH);
       
   }
 }
